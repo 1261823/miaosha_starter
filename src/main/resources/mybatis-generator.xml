@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!-- 可以用于加载配置项或者配置文件，在整个配置文件中就可以使用${propertyKey}的方式来引用配置项
+        resource：配置资源加载地址，使用resource，MBG从classpath开始找，比如com/myproject/generatorConfig.properties
+        url：配置资源加载地质，使用URL的方式，比如file:///C:/myfolder/generatorConfig.properties.
+        注意，两个属性只能选址一个;
+
+        另外，如果使用了mybatis-generator-maven-plugin，那么在pom.xml中定义的properties都可以直接在generatorConfig.xml中使用
+    <properties resource="" url="" />
+     -->
+
+    <!-- 在MBG工作的时候，需要额外加载的依赖包
+       location属性指明加载jar/zip包的全路径
+   <classPathEntry location="/Program Files/IBM/SQLLIB/java/db2java.zip" />
+     -->
+    <!-- 引入配置文件 -->
+<!--    <properties resource="application.properties"/>-->
+
+<!--    &lt;!&ndash; 指定数据库连接驱动jara地址 &ndash;&gt;-->
+<!--    <classPathEntry location="${generator.location}" />-->
+
+    <context id="DB2Tables" targetRuntime="MyBatis3">
+
+        <property name="javaFileEncoding" value="UTF-8"/>
+        <property name="useMapperCommentGenerator" value="false"/>
+        <commentGenerator>
+            <property name="suppressAllComments" value="false" /><!-- 是否取消注释 -->
+            <property name="suppressDate" value="true" /> <!-- 是否生成注释代时间戳 -->
+        </commentGenerator>
+
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/miaosha_starter"
+                        userId="root"
+                        password="3263823">
+        </jdbcConnection>
+
+        <!-- 生成实体类地址 -->
+        <javaModelGenerator targetPackage="com.example.demo.dataObject" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true" />
+            <property name="trimStrings" value="true" />
+        </javaModelGenerator>
+
+
+        <sqlMapGenerator targetPackage="mapping" targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <!-- 生成mapxml对应client，也就是接口dao -->
+        <javaClientGenerator type="XMLMAPPER"
+                         targetPackage="com.example.demo.Dao" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+
+        <table tableName="user_info" domainObjectName="UserDO" enableCountByExample="false"
+            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false"
+            selectByExampleQueryId="false"/>
+        <table tableName="user_password" domainObjectName="UserPasswordDO" enableCountByExample="false"
+               enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false"
+               selectByExampleQueryId="false"/>
+    </context>
+</generatorConfiguration>
