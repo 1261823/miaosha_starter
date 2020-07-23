@@ -13,17 +13,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.BASE64Encoder;
 import sun.security.provider.MD5;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 @Controller("user")
 @RequestMapping("/user")
-@CrossOrigin
+@CrossOrigin(allowCredentials = "true", allowedHeaders = "*")
 public class UserController extends BaseController {
 
     @Autowired
@@ -39,8 +43,8 @@ public class UserController extends BaseController {
                                      @RequestParam(name = "otpCode")String otpCode,
                                      @RequestParam(name = "name")String name,
                                      @RequestParam(name = "gender")Integer gender,
-                                     @RequestParam(name = "age")String age,
-                                     @RequestParam(name = "password")String password) throws BusinessException {
+                                     @RequestParam(name = "age")Integer age,
+                                     @RequestParam(name = "password")String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
         //验证手机号和对应的otpCode相符合
         String inSessionotpCode = (String)this.httpServletRequest.getSession().getAttribute(telphone);
         if (!StringUtils.equals(otpCode,inSessionotpCode)) {
@@ -49,15 +53,45 @@ public class UserController extends BaseController {
         // 用户注册流程
         UserModel userModel = new UserModel();
         userModel.setName(name);
-        userModel.setGender(gender);
+        userModel.setGender(new Byte(String.valueOf(gender.intValue())));
         userModel.setAge(age);
         userModel.setTelephone(telphone);
         userModel.setRegisterMode("byphone");
-        userModel.setEncrptPassword(MD5Encoder.encode(password.getBytes()));
+        userModel.setEncrptPassword(this.EncodeByMd5(password));
 
         userService.register(userModel);
         return CommonReturnType.create(null);
 
+    }
+
+    //用户登陆接口
+    @RequestMapping(value = "/login",method = {RequestMethod.POST},consumes={CONTENT_TYPE_FORMED})
+    @ResponseBody
+    public CommonReturnType login(@RequestParam(name="telphone")String telphone,
+                                  @RequestParam(name="password")String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
+
+        //入参校验
+        if(org.apache.commons.lang3.StringUtils.isEmpty(telphone)||
+                org.springframework.util.StringUtils.isEmpty(password)){
+            throw new BusinessException(EmBusinessErr.PARAMETER_VALIDATION_ERROR);
+        }
+
+        //用户登陆服务,用来校验用户登陆是否合法
+        UserModel userModel = userService.validateLogin(telphone,this.EncodeByMd5(password));
+        //将登陆凭证加入到用户登陆成功的session内
+        this.httpServletRequest.getSession().setAttribute("IS_LOGIN",true);
+        this.httpServletRequest.getSession().setAttribute("LOGIN_USER",userModel);
+
+        return CommonReturnType.create(null);
+    }
+
+    public String EncodeByMd5(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        //确定计算方法
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        BASE64Encoder base64En = new BASE64Encoder();
+        //加密字符串
+        String newstr = base64En.encode(md5.digest(str.getBytes("utf-8")));
+        return newstr;
     }
 
     // 用户获取otp短信接口
