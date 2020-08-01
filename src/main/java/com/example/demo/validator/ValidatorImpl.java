@@ -9,7 +9,7 @@ import javax.validation.Validator;
 import java.util.Set;
 
 @Component
-public class ValidatorImp implements InitializingBean {
+public class ValidatorImpl implements InitializingBean {
 
     private Validator validator;
 

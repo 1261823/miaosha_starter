@@ -9,7 +9,7 @@ import com.example.demo.error.EmBusinessErr;
 import com.example.demo.service.UserService;
 import com.example.demo.service.model.UserModel;
 import com.example.demo.validator.ValidationResult;
-import com.example.demo.validator.ValidatorImp;
+import com.example.demo.validator.ValidatorImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     UserPasswordDOMapper userPasswordDOMapper;
 
     @Autowired
-    ValidatorImp validator;
+    ValidatorImpl validator;
 
 
     @Override
